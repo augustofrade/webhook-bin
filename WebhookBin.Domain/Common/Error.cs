@@ -1,6 +1,3 @@
 ﻿namespace WebhookBin.Domain.Common;
 
-public class Error
-{
-    
-}
+public record Error(string Code, string Message);
