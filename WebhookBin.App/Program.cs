@@ -2,6 +2,7 @@ using FluentValidation;
 using Scalar.AspNetCore;
 using WebhookBin.App.Endpoints;
 using WebhookBin.App.UI;
+using WebhookBin.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+
+builder.Services.AddAndConfigureDbContext(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 builder.Services.AddPublicApiEndpoints();
 builder.Services.AddOpenApi();

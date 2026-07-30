@@ -8,8 +8,13 @@ public static class ServiceCollectionExtensions
 {
     extension(IServiceCollection services)
     {
-        public IServiceCollection AddAndConfigureDbContext(string connectionString)
+        public IServiceCollection AddAndConfigureDbContext(string? connectionString)
         {
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                throw new ArgumentNullException(nameof(connectionString));    
+            }
+            
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseInMemoryDatabase(connectionString);

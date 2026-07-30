@@ -15,4 +15,8 @@
       <ProjectReference Include="..\WebhookBin.Domain\WebhookBin.Domain.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Persistence\Migrations\" />
+    </ItemGroup>
+
 </Project>

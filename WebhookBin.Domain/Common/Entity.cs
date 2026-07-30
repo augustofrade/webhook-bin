@@ -2,6 +2,6 @@ namespace WebhookBin.Domain.Common;
 
 public class Entity
 {
-    public DateTime CreatedAt { get; private init; } =  DateTime.UtcNow;
-    public DateTime ModifiedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; private init; } =  DateTimeOffset.UtcNow;
+    public DateTimeOffset ModifiedAt { get; set; }
 }

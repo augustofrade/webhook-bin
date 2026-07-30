@@ -24,7 +24,7 @@ public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
         var entities = ChangeTracker.Entries().Where(e => e is { Entity: Entity, State: EntityState.Modified or EntityState.Added }).ToList();
         foreach (var entity in entities)
         {
-            ((Entity)entity.Entity).ModifiedAt = DateTime.UtcNow;
+            ((Entity)entity.Entity).ModifiedAt = DateTimeOffset.UtcNow;
         }
     }
 }
