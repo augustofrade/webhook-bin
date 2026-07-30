@@ -1,3 +1,5 @@
 <Solution>
   <Project Path="WebhookBin.App/WebhookBin.App.csproj" />
+  <Project Path="WebhookBin.Domain/WebhookBin.Domain.csproj" />
+  <Project Path="WebhookBin.Infrastructure/WebhookBin.Infrastructure.csproj" />
 </Solution>

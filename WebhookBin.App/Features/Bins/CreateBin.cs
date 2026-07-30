@@ -1,7 +1,5 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using WebhookBin.App.Endpoints;
 
 namespace WebhookBin.App.Features.Bins;
 
