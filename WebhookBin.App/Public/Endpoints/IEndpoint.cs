@@ -1,4 +1,4 @@
-namespace WebhookBin.App.Endpoints;
+namespace WebhookBin.App.Public.Endpoints;
 
 public interface IEndpoint
 {

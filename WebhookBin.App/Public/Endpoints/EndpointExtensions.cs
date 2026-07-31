@@ -1,7 +1,7 @@
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
-namespace WebhookBin.App.Endpoints;
+namespace WebhookBin.App.Public.Endpoints;
 
 public static class EndpointExtensions
 {

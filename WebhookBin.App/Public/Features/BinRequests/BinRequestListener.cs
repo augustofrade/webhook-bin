@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using WebhookBin.App.Endpoints;
+using WebhookBin.App.Public.Endpoints;
 
 namespace WebhookBin.App.Public.Features.BinRequests;
 

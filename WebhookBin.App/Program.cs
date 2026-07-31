@@ -1,7 +1,8 @@
 using BlazorBlueprint.Components;
 using FluentValidation;
 using Scalar.AspNetCore;
-using WebhookBin.App.Endpoints;
+using WebhookBin.App.Public.Endpoints;
+using WebhookBin.App.Shared.Extensions;
 using WebhookBin.App.UI;
 using WebhookBin.Infrastructure;
 
