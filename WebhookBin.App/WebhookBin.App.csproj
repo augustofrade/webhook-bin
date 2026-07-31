@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="BlazorBlueprint.Components" Version="3.14.1" />
       <PackageReference Include="FluentValidation" Version="12.1.1" />
       <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
       <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
@@ -16,6 +17,15 @@
 
     <ItemGroup>
       <ProjectReference Include="..\WebhookBin.Infrastructure\WebhookBin.Infrastructure.csproj" />
+    </ItemGroup>
+
+    <Target Name="BuildTailwindCSS" BeforeTargets="BeforeBuild">
+        <Message Text="Building Tailwind CSS..." Importance="high" />
+        <Exec Command="tailwindcss -i wwwroot/app.css -o wwwroot/dist/app.css" />
+    </Target>
+
+    <ItemGroup>
+      <Folder Include="wwwroot\dist\" />
     </ItemGroup>
 
 </Project>

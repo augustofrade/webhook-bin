@@ -3,6 +3,9 @@
 ##
 ## Get latest from `dotnet new gitignore`
 
+# WebApp compiled files
+dist
+
 # dotenv files
 .env
 

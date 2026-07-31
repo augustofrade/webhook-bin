@@ -1,0 +1,39 @@
+@page "/bins"
+
+@using BlazorBlueprint.Components
+
+@layout EmptyLayout
+
+<BbDialog>
+    <BbDialogTrigger>
+        <BbButton>Create Bin</BbButton>
+    </BbDialogTrigger>
+    <BbDialogContent>
+        <BbDialogHeader>
+            <BbDialogTitle>Create Bin</BbDialogTitle>
+            <BbDialogDescription>Create a new bin to start receiving requests and debugging them.</BbDialogDescription>
+        </BbDialogHeader>
+        <div>
+            <div>
+                <BbFormFieldInput TValue="string" @bind-Value="_binName" Label="Name"/>
+            </div>
+        </div>
+        <BbDialogFooter class="sm:justify-between">
+            <BbDialogClose>
+                <BbButton Variant="ButtonVariant.Outline">Cancel</BbButton>
+            </BbDialogClose>
+            <BbButton Loading="@_isLoading" LoadingText="Saving..." @onclick="CreateBin">Create</BbButton>
+        </BbDialogFooter>
+    </BbDialogContent>
+</BbDialog>
+
+
+@code {
+    private string? _binName;
+    private bool _isLoading = false;
+
+    private void CreateBin()
+    {
+        _isLoading = true;
+    }
+}

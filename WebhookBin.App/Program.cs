@@ -1,3 +1,4 @@
+using BlazorBlueprint.Components;
 using FluentValidation;
 using Scalar.AspNetCore;
 using WebhookBin.App.Endpoints;
@@ -16,6 +17,8 @@ builder.Services.AddAndConfigureDbContext(builder.Configuration.GetConnectionStr
 
 builder.Services.AddPublicApiEndpoints();
 builder.Services.AddOpenApi();
+
+builder.Services.AddBlazorBlueprintComponents();
 
 var app = builder.Build();
 
