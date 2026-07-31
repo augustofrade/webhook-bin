@@ -1,11 +1,16 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using WebhookBin.Domain.BinRequests;
+using WebhookBin.Domain.Bins;
 using WebhookBin.Domain.Common;
 
 namespace WebhookBin.Infrastructure.Persistence;
 
 public class ApplicationDbContext(DbContextOptions options) : DbContext(options)
 {
+    public DbSet<Bin> Bins { get; private init; }
+    public DbSet<BinRequest> BinRequests { get; private init; }
+    
     protected override void OnConfiguring(DbContextOptionsBuilder builder)
     {
         builder.EnableSensitiveDataLogging();

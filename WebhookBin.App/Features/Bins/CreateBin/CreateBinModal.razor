@@ -1,3 +1,7 @@
+@inject CreateBinHandler createBinHandler;
+@inject ToastService toast;
+@inject ILogger<CreateBinModal> logger;
+
 <BbDialog Open="@Open" OpenChanged="@OpenChanged">
     <BbDialogContent>
         <BbDialogHeader>
@@ -13,7 +17,7 @@
             <BbDialogClose>
                 <BbButton Variant="ButtonVariant.Outline">Cancel</BbButton>
             </BbDialogClose>
-            <BbButton Loading="@_isLoading" LoadingText="Saving..." @onclick="CreateBin">Create</BbButton>
+            <BbButton Loading="@_isLoading" LoadingText="Saving..." @onclick="CreateBinAsync">Create</BbButton>
         </BbDialogFooter>
     </BbDialogContent>
 </BbDialog>
@@ -26,11 +30,29 @@
     private bool _isLoading = false;
     private bool _error = false;
 
-    private void CreateBin()
+    private async Task CreateBinAsync()
     {
         _error = string.IsNullOrWhiteSpace(_binName);
         if (_error) return;
         
         _isLoading = true;
+
+        try
+        {
+            var result = await createBinHandler.Handle(new CreateBinCommand(_binName!));
+            if (result.IsFailure())
+            {
+                toast.Error(result.Error?.Message ?? "Error creating bin");
+                return;
+            }
+            toast.Success("Bin created successfully");
+            _isLoading = false;
+            await OpenChanged.InvokeAsync(false);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error creating bin");
+            toast.Error(ex.ToString());
+        }
     }
 }
