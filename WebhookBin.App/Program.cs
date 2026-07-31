@@ -2,11 +2,13 @@ using BlazorBlueprint.Components;
 using FluentValidation;
 using Scalar.AspNetCore;
 using WebhookBin.App.Public.Endpoints;
-using WebhookBin.App.Shared.Extensions;
+using WebhookBin.App.Shared.Commands;
 using WebhookBin.App.UI;
 using WebhookBin.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddLogging();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
@@ -15,6 +17,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 builder.Services.AddAndConfigureDbContext(builder.Configuration.GetConnectionString("DefaultConnection"));
+
+builder.Services.AddCommandHandlers();
 
 builder.Services.AddPublicApiEndpoints();
 builder.Services.AddOpenApi();
