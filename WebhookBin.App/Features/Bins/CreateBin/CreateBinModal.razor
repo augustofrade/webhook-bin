@@ -1,0 +1,36 @@
+<BbDialog Open="@Open" OpenChanged="@OpenChanged">
+    <BbDialogContent>
+        <BbDialogHeader>
+            <BbDialogTitle>Create Bin</BbDialogTitle>
+            <BbDialogDescription>Create a new bin to start receiving requests and debugging them.</BbDialogDescription>
+        </BbDialogHeader>
+        <div>
+            <div>
+                <BbFormFieldInput TValue="string" @bind-Value="_binName" Label="Bin name" ErrorText="@(_error ? "Required field." : "")"/>
+            </div>
+        </div>
+        <BbDialogFooter class="sm:justify-between">
+            <BbDialogClose>
+                <BbButton Variant="ButtonVariant.Outline">Cancel</BbButton>
+            </BbDialogClose>
+            <BbButton Loading="@_isLoading" LoadingText="Saving..." @onclick="CreateBin">Create</BbButton>
+        </BbDialogFooter>
+    </BbDialogContent>
+</BbDialog>
+
+@code {
+    [Parameter] public bool Open { get; set; }
+    [Parameter] public EventCallback<bool> OpenChanged { get; set; }
+    
+    private string? _binName;
+    private bool _isLoading = false;
+    private bool _error = false;
+
+    private void CreateBin()
+    {
+        _error = string.IsNullOrWhiteSpace(_binName);
+        if (_error) return;
+        
+        _isLoading = true;
+    }
+}
