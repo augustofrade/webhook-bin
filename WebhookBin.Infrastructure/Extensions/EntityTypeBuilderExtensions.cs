@@ -8,9 +8,9 @@ public static class EntityTypeBuilderExtensions
     {
         public void HasAutoIncrementedPrimaryKey()
         {
-            builder.HasKey("Id");
             builder.Property<int>("Id")
                 .ValueGeneratedOnAdd();
+            builder.HasKey("Id");
         }
     }
 }
