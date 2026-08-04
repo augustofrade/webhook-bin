@@ -1,16 +1,51 @@
 @page "/bins"
 @using WebhookBin.App.Features.Bins.CreateBin
+@using WebhookBin.App.Shared.Bins.Dtos
 
 @layout EmptyLayout
 
 <div class="container mx-auto px-2">
-    
-<BbTypographyH1>Your Bins</BbTypographyH1>
-<BbButton @onclick="() => _isCreateModalOpen = true">Create Bin</BbButton>
+    <BbTypographyH1>Your Bins</BbTypographyH1>
+    <div class="mb-4">
+        @foreach (var bin in _bins)
+        {
+            <NavLink class="cursor-pointer" href="/bins/@bin.PublicId">
+                <BbCard>
+                    <BbCardHeader>
+                        <BbCardTitle>@bin.Name</BbCardTitle>
+                        <BbCardDescription>@bin.RequestAmount Request@(bin.RequestAmount is 0 or > 1 ? 's' : "")</BbCardDescription>
+                    </BbCardHeader>
+                    <BbCardContent>
+                        <BbTypographyP>@bin.CreatedAt.ToString("f")</BbTypographyP>
+                    </BbCardContent>
+                </BbCard>
+            </NavLink>
+        }
+    </div>
+    @if (_bins.Count >= MaxDemoBins && _demoMode)
+    {
+        <BbAlert Variant="AlertVariant.Info">
+            <BbAlertTitle>Demo mode</BbAlertTitle>
+            <BbAlertDescription>You achieved the maximum amount of bins available in demo mode.</BbAlertDescription>
+        </BbAlert>
+    }
+    else
+    {
+        <BbButton @onclick="() => _isCreateModalOpen = true">Create Bin</BbButton>
+    }
 </div>
 
-<CreateBinModal @bind-open="_isCreateModalOpen" />
+<CreateBinModal @bind-open="_isCreateModalOpen" OnSuccess="OnModalCreated" />
 
 @code {
+    private readonly List<ListBinDto> _bins = [];
+    private bool _demoMode = true;
+    private const int MaxDemoBins = 1;
+    
     private bool _isCreateModalOpen = false;
+
+    private void OnModalCreated(ListBinDto newBin)
+    {
+        _bins.Add(newBin);
+    }
 }
