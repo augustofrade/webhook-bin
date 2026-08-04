@@ -1,11 +1,40 @@
-@page "/bins/{id:guid}"
-@using WebhookBin.App.Features.Bins.CreateBin
+@page "/bins/{Id:guid}"
+@attribute [StreamRendering]
+
 @using WebhookBin.App.Shared.Bins.Dtos
 
-@layout EmptyLayout
+@inject ViewBinHandler Handler
+@inject NavigationManager Navigation
 
-<BbTypographyH1></BbTypographyH1>
+@layout BinsWorkspaceLayout
+
+
+<BbTypographyH1>
+    @if (BinDetails is not null)
+    {
+        @BinDetails.Name
+    }
+    else
+    {
+        <BbSkeleton class="h-10 w-[250px]"></BbSkeleton>
+    }
+</BbTypographyH1>
 
 @code {
+    private BinDetailsDto? BinDetails;
     
+    [Parameter]
+    public Guid Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await Handler.Handle(new ViewBinQuery(Id));
+        if (result.IsFailure())
+        {
+            Navigation.NavigateTo("/bins");
+            return;
+        }
+
+        BinDetails = result.Value;
+    }
 }

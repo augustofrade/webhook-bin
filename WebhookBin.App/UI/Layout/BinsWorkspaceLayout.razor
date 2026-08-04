@@ -1,0 +1,76 @@
+@using BlazorBlueprint.Icons.Lucide.Components
+@using BlazorBlueprint.Primitives
+@using BlazorBlueprint.Primitives.Services
+@inherits LayoutComponentBase
+
+@inject NavigationManager Navigation
+
+
+<BbSidebarProvider>
+    <BbSidebar>
+        <BbSidebarHeader>
+            <div class="flex items-center gap-2">
+                <div class="h-8 w-8 rounded-lg bg-primary"></div>
+                <span class="font-semibold">WebhookBin</span>
+            </div>
+        </BbSidebarHeader>
+        <BbSidebarContent>
+            <BbSidebarMenu>
+                <BbSidebarMenuItem>
+                    <BbSidebarMenuButton IsActive="true">
+                        <LucideIcon Name="house" />
+                        My Bins
+                    </BbSidebarMenuButton>
+                </BbSidebarMenuItem>
+                <BbSidebarMenuItem>
+                    <BbSidebarMenuButton>
+                        <LucideIcon Name="inbox" />
+                        Inbox
+                    </BbSidebarMenuButton>
+                </BbSidebarMenuItem>
+            </BbSidebarMenu>
+        </BbSidebarContent>
+        <BbSidebarFooter>
+            @if (false)
+            {
+                <BbDropdownMenu>
+                    <BbDropdownMenuTrigger>
+                        <BbButton Variant="ButtonVariant.Ghost" Class="w-full justify-start gap-2">
+                            <BbAvatar Size="AvatarSize.Small">
+                                <BbAvatarFallback>AF</BbAvatarFallback>
+                            </BbAvatar>
+                            <div class="flex flex-col items-start">
+                                <span class="font-medium">Augustofrade</span>
+                                <span class="text-xs text-muted-foreground">Paid plan</span>
+                            </div>
+                            <LucideIcon Name="chevrons-up-down" class="ml-auto" />
+                        </BbButton>
+                    </BbDropdownMenuTrigger>
+                    <BbDropdownMenuContent Side="PopoverSide.Top" Class="w-60">
+                        <BbDropdownMenuLabel>My Account</BbDropdownMenuLabel>
+                        <BbDropdownMenuSeparator />
+                        <BbDropdownMenuItem>Account</BbDropdownMenuItem>
+                        <BbDropdownMenuItem>Settings</BbDropdownMenuItem>
+                        <BbDropdownMenuSeparator />
+                        <BbDropdownMenuItem>Log out</BbDropdownMenuItem>
+                    </BbDropdownMenuContent>
+                </BbDropdownMenu>
+            }
+            else
+            {
+                <BbButton Variant="ButtonVariant.Ghost" Class="w-full justify-start gap-2">
+                    <LucideIcon Name="log-in" />
+                    <div class="flex flex-col items-start">
+                        <span class="font-medium">Sign In</span>
+                        <span class="text-xs text-muted-foreground">For more options</span>
+                    </div>
+                </BbButton>
+            }
+        </BbSidebarFooter>
+    </BbSidebar>
+    <main class="container mx-auto px-2 py-10">@Body</main>
+</BbSidebarProvider>
+
+<BbPortalHost />
+
+<BbToastProvider />
