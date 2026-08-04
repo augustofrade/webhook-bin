@@ -3,6 +3,7 @@ using FluentValidation;
 using Scalar.AspNetCore;
 using WebhookBin.App.Public.Endpoints;
 using WebhookBin.App.Shared.Commands;
+using WebhookBin.App.Shared.Queries;
 using WebhookBin.App.UI;
 using WebhookBin.Infrastructure;
 
@@ -19,6 +20,7 @@ builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 builder.Services.AddAndConfigureDbContext(builder.Configuration.GetConnectionString("DefaultConnection"));
 
 builder.Services.AddCommandHandlers();
+builder.Services.AddQueryHandlers();
 
 builder.Services.AddPublicApiEndpoints();
 builder.Services.AddOpenApi();
