@@ -50,4 +50,5 @@ public class Result<T> : Result
     }
 
     public static implicit operator Result<T>(Error error) => Failure(error);
+    public static implicit operator Result<T>(T data) => Success(data);
 }

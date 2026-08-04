@@ -1,3 +1,4 @@
+@using WebhookBin.App.Shared.Bins.Dtos
 @inject CreateBinHandler createBinHandler;
 @inject ToastService toast;
 @inject ILogger<CreateBinModal> logger;
@@ -25,10 +26,11 @@
 @code {
     [Parameter] public bool Open { get; set; }
     [Parameter] public EventCallback<bool> OpenChanged { get; set; }
+    [Parameter] public EventCallback<ListBinDto> OnSuccess { get; set; }
     
     private string? _binName;
-    private bool _isLoading = false;
-    private bool _error = false;
+    private bool _isLoading;
+    private bool _error;
 
     private async Task CreateBinAsync()
     {
@@ -47,6 +49,8 @@
             }
             toast.Success("Bin created successfully");
             _isLoading = false;
+            
+            await OnSuccess.InvokeAsync(result.Value);
             await OpenChanged.InvokeAsync(false);
         }
         catch (Exception ex)
