@@ -22,10 +22,13 @@ public class BinEntityConfiguration : IEntityTypeConfiguration<Bin>
             .HasMaxLength(255)
             .IsRequired();
         
-        builder.HasMany<BinRequest>()
+        builder.Navigation(b => b.Requests)
+            .HasField("_requests")
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
+        
+        builder.HasMany<BinRequest>(b => b.Requests)
             .WithOne()
             .HasForeignKey("BinId")
-            .HasPrincipalKey("Id")
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
