@@ -33,7 +33,7 @@ public static class BinRequestListener
 
     public static async Task<Results<Ok<Response>, NotFound>> Handler([FromRoute] Guid binId, HttpContext httpContext, BinRequestNotifier binRequestNotifier)
     {
-        var binRequest = BinRequestFactory.Create(httpContext, DateTimeOffset.UtcNow);
+        var binRequest = await BinRequestFactory.Create(httpContext, DateTimeOffset.UtcNow);
         
         await binRequestNotifier.NotifyReceivedRequest(binId);
         

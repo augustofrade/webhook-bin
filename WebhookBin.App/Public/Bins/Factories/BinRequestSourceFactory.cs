@@ -12,10 +12,12 @@ public static class BinRequestSourceFactory
             ?? httpContext.Connection.RemoteIpAddress?.ToString()
             ?? string.Empty;
 
+        var userAgent = httpContext.Request.Headers.UserAgent.FirstOrDefault();
+        
         var rawSource =
             httpContext.Request.Headers.Origin.FirstOrDefault()
             ?? httpContext.Request.Headers.Referer.FirstOrDefault();
 
-        return BinRequestSource.Create(remoteIp, rawSource);
+        return BinRequestSource.Create(remoteIp, userAgent, rawSource);
     }
 }

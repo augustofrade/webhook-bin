@@ -1,12 +1,19 @@
+using System.Text;
 using WebhookBin.Domain.BinRequests;
 
 namespace WebhookBin.App.Public.Bins.Factories;
 
 public static class BinRequestPayloadFactory
 {
-    public static BinRequestPayload Create(HttpContext httpContext)
+    public static async Task<BinRequestPayload> Create(HttpContext httpContext)
     {
-        var body = httpContext.Request.Body.ToString();
+        using var reader = new StreamReader(
+            httpContext.Request.Body,
+            Encoding.UTF8,
+            detectEncodingFromByteOrderMarks: false,
+            leaveOpen: true);
+        var body = await reader.ReadToEndAsync();
+        
         if (string.IsNullOrWhiteSpace(body))
             return BinRequestPayload.CreateEmpty();
         
