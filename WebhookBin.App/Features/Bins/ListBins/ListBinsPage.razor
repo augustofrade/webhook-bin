@@ -2,6 +2,8 @@
 @using WebhookBin.App.Features.Bins.CreateBin
 @using WebhookBin.App.Shared.Bins.Dtos
 
+@inject ListBinsHandler ListBinsHandler
+
 @layout BinsWorkspaceLayout
 
 <div class="">
@@ -54,6 +56,14 @@
     private const int MaxDemoBins = 1;
     
     private bool _isCreateModalOpen = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        
+        var storedBins = await ListBinsHandler.Handle(new ListBinsQuery());
+        _bins.AddRange(storedBins.Value);
+    }
 
     private void OnModalCreated(ListBinDto newBin)
     {
