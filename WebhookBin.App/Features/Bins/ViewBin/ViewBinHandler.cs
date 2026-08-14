@@ -16,7 +16,7 @@ public class ViewBinHandler(ApplicationDbContext dbContext) : IQueryHandler<View
             .Where(b => b.PublicId == query.PublicId)
             .Select(b => new BinDetailsDto(b.PublicId.Value,
                 b.Name,
-                b.Requests.Select(br => new ListBinRequestDto(br.Origin.Raw, br.Method, br.ReceivedAt))
+                b.Requests.Select(br => new ListBinRequestDto(br.Source.Raw, br.Method, br.ReceivedAt))
                     .ToList()
             ))
             .FirstOrDefaultAsync(ct);

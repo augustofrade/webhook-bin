@@ -1,14 +1,15 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using WebhookBin.App.Public.Bins.Factories;
 using WebhookBin.App.Public.Endpoints;
 using WebhookBin.App.Shared.Bins.Notifications;
-using WebhookBin.Domain.Bins;
+using WebhookBin.Domain.BinRequests;
 
-namespace WebhookBin.App.Public.Features.BinRequests;
+namespace WebhookBin.App.Public.Bins;
 
 public static class BinRequestListener
 {
-    public sealed record Response(Guid binId);
+    public sealed record Response(Guid BinId, BinRequest BinRequest);
     
     private static string[] AllowedHttpMethods =
     [
@@ -30,10 +31,14 @@ public static class BinRequestListener
         }
     }
 
-    public static async Task<Results<Ok<Response>, NotFound>> Handler([FromRoute] Guid binId, BinRequestNotifier binRequestNotifier)
+    public static async Task<Results<Ok<Response>, NotFound>> Handler([FromRoute] Guid binId, HttpContext httpContext, BinRequestNotifier binRequestNotifier)
     {
+        var binRequest = BinRequestFactory.Create(httpContext, DateTimeOffset.UtcNow);
+        
         await binRequestNotifier.NotifyReceivedRequest(binId);
         
-        return TypedResults.Ok(new Response(binId));
+        return TypedResults.Ok(new Response(binId, binRequest));
     }
+
+    
 }
