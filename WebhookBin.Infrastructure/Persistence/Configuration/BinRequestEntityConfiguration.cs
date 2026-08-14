@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions.Infrastructure;
 using WebhookBin.Domain.BinRequests;
 using WebhookBin.Infrastructure.Extensions;
 
@@ -20,11 +19,7 @@ public class BinRequestEntityConfiguration : IEntityTypeConfiguration<BinRequest
             .HasMaxLength(2048)
             .IsRequired(false);
 
-        builder.Property(b => b.UserAgent)
-            .HasMaxLength(1024)
-            .IsRequired(false);
-
-        builder.OwnsOne(b => b.Origin, o =>
+        builder.OwnsOne(b => b.Source, o =>
         {
             o.Property(b => b.Scheme).IsRequired();
             o.Property(b => b.RemoteIp)
@@ -35,6 +30,10 @@ public class BinRequestEntityConfiguration : IEntityTypeConfiguration<BinRequest
                 .IsRequired();
             o.Property(b => b.Raw)
                 .HasMaxLength(2048);
+            
+            o.Property(b => b.UserAgent)
+                .HasMaxLength(1024)
+                .IsRequired(false);
         });
 
         builder.OwnsOne(b => b.Payload, p =>
