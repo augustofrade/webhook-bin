@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using WebhookBin.App.Public.Endpoints;
+using WebhookBin.App.Shared.Bins.Notifications;
+using WebhookBin.Domain.Bins;
 
 namespace WebhookBin.App.Public.Features.BinRequests;
 
@@ -28,8 +30,10 @@ public static class BinRequestListener
         }
     }
 
-    public static Results<Ok<Response>, NotFound> Handler([FromRoute] Guid binId)
+    public static async Task<Results<Ok<Response>, NotFound>> Handler([FromRoute] Guid binId, BinRequestNotifier binRequestNotifier)
     {
+        await binRequestNotifier.NotifyReceivedRequest(binId);
+        
         return TypedResults.Ok(new Response(binId));
     }
 }

@@ -2,6 +2,7 @@ using BlazorBlueprint.Components;
 using FluentValidation;
 using Scalar.AspNetCore;
 using WebhookBin.App.Public.Endpoints;
+using WebhookBin.App.Shared.Bins.Notifications;
 using WebhookBin.App.Shared.Commands;
 using WebhookBin.App.Shared.Queries;
 using WebhookBin.App.UI;
@@ -19,6 +20,7 @@ builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 builder.Services.AddAndConfigureDbContext(builder.Configuration.GetConnectionString("DefaultConnection"));
 
+builder.Services.AddScoped<BinRequestNotifier>();
 builder.Services.AddCommandHandlers();
 builder.Services.AddQueryHandlers();
 
@@ -27,9 +29,12 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddBlazorBlueprintComponents();
 
+builder.Services.AddSignalR();
+
 var app = builder.Build();
 
 app.MapPublicApiEndpoints();
+app.MapBinsHub();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

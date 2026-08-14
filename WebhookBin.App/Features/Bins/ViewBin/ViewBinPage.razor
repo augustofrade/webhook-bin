@@ -1,12 +1,18 @@
 @page "/bins/{Id:guid}"
 @attribute [StreamRendering]
 
+@using Microsoft.AspNetCore.SignalR.Client
 @using WebhookBin.App.Shared.Bins.Dtos
+@using WebhookBin.App.Shared.Bins.Notifications
+@using WebhookBin.Domain.Bins
 
 @inject ViewBinHandler Handler
 @inject NavigationManager Navigation
+@inject ILogger<ViewBinPage> Logger
 
 @layout BinsWorkspaceLayout
+
+@implements IAsyncDisposable
 
 
 <BbTypographyH1>
@@ -26,6 +32,8 @@
     [Parameter]
     public Guid Id { get; set; }
 
+    private HubConnection? _hubConnection;
+
     protected override async Task OnInitializedAsync()
     {
         var result = await Handler.Handle(new ViewBinQuery(Id));
@@ -36,5 +44,32 @@
         }
 
         BinDetails = result.Value;
+        await HandleBinHubConnection();
+    }
+
+    private async Task HandleBinHubConnection()
+    {
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri(BinsHub.HubRoute))
+            .WithAutomaticReconnect()
+            .Build();
+
+        _hubConnection.On<Guid>(BinsHub.RequestReceived, publicId =>
+        {
+            Logger.LogInformation("Request received for bin {binPublicId}", publicId);
+        });
+
+        await _hubConnection.StartAsync();
+        Logger.LogInformation("Trying to join bin group {binHubGroup}", BinsHub.HubGroup(Id));
+        await _hubConnection.SendAsync("JoinBinGroup", Id);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hubConnection is not null)
+        {
+            await _hubConnection.SendAsync("LeaveBinGroup", new BinPublicId(Id));
+            await _hubConnection.DisposeAsync();
+        }
     }
 }
