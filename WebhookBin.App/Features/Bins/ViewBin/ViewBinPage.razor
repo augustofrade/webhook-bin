@@ -2,6 +2,7 @@
 @attribute [StreamRendering]
 
 @using Microsoft.AspNetCore.SignalR.Client
+@using WebhookBin.App.Shared.BinRequests.Dtos
 @using WebhookBin.App.Shared.Bins.Dtos
 @using WebhookBin.App.Shared.Bins.Notifications
 @using WebhookBin.Domain.Bins
@@ -15,19 +16,55 @@
 @implements IAsyncDisposable
 
 
-<BbTypographyH1>
-    @if (BinDetails is not null)
+@if (_binDetails is not null) {
+    <div class="mb-5">
+        <div class="flex items-center gap-3 mb-2">
+            <BbTypographyH1>
+                @_binDetails.Name
+            </BbTypographyH1>
+            <BbCopyText Value="@BinRequestUrl">
+                <BbTypographyInlineCode>Copy URL</BbTypographyInlineCode>
+            </BbCopyText>
+        </div>
+        <BbTypographyMuted>@_binDetails.PublicId.ToString()</BbTypographyMuted>
+    </div>
+    
+    @foreach (var br in _binDetails.Requests)
     {
-        @BinDetails.Name
+        <BbCard class="mb-5">
+            <BbCardHeader>
+                <BbCardTitle>@br.Method.ToString().ToUpper()</BbCardTitle>
+                <BbCardDescription>@br.ReceivedAt.ToString("G")</BbCardDescription>
+            </BbCardHeader>
+            <BbCardContent>
+                <div>
+                    <BbItem Size="ItemSize.Sm">
+                        <BbItemContent>
+                            <BbItemTitle><span class="fw-bold">Content Type:</span> @br.Payload.ContentType</BbItemTitle>
+                            <BbItemDescription><span class="fw-bold">Content Length:</span> @br.Payload.ContentLength</BbItemDescription>
+                        </BbItemContent>
+                    </BbItem>
+                    <BbTypographyLarge>Body</BbTypographyLarge>
+                    <div style="white-space: pre-wrap">
+                        @br.Payload.Body
+                    </div>
+                </div>
+                <BbSeparator />
+            </BbCardContent>
+        </BbCard>
     }
-    else
-    {
-        <BbSkeleton class="h-10 w-[250px]"></BbSkeleton>
-    }
-</BbTypographyH1>
+} else
+{
+<BbSkeleton class="h-10 w-[250px]"></BbSkeleton>
+}
 
 @code {
-    private BinDetailsDto? BinDetails;
+    private BinDetailsDto? _binDetails;
+    
+    private string BinRequestUrl =>
+        _binDetails is null
+            ? string.Empty
+            : $"{Navigation.BaseUri}i/{_binDetails.PublicId}";
     
     [Parameter]
     public Guid Id { get; set; }
@@ -43,7 +80,7 @@
             return;
         }
 
-        BinDetails = result.Value;
+        _binDetails = result.Value;
         await HandleBinHubConnection();
     }
 
@@ -54,14 +91,25 @@
             .WithAutomaticReconnect()
             .Build();
 
-        _hubConnection.On<Guid>(BinsHub.RequestReceived, publicId =>
-        {
-            Logger.LogInformation("Request received for bin {binPublicId}", publicId);
-        });
+        _hubConnection.On<ListBinRequestDto>(BinsHub.RequestReceived, HandleNewBinRequestNotification);
 
         await _hubConnection.StartAsync();
         Logger.LogInformation("Trying to join bin group {binHubGroup}", BinsHub.HubGroup(Id));
         await _hubConnection.SendAsync("JoinBinGroup", Id);
+    }
+
+    /// <summary>
+    /// Adds the new request to the bin requests list
+    /// </summary>
+    /// <param name="binRequestDto">DTO of the BinRequest</param>
+    private async Task HandleNewBinRequestNotification(ListBinRequestDto binRequestDto)
+    {
+        Logger.LogInformation("Request received for bin {binPublicId}", _binDetails!.PublicId);
+        await InvokeAsync(() =>
+        {
+            _binDetails.Requests.Insert(0, binRequestDto);
+            StateHasChanged();
+        });
     }
 
     public async ValueTask DisposeAsync()

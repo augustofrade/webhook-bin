@@ -19,6 +19,7 @@ builder.Services.AddRazorComponents()
 builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
 
 builder.Services.AddAndConfigureDbContext(builder.Configuration.GetConnectionString("DefaultConnection"));
+builder.Services.RegisterRepositories();
 
 builder.Services.AddScoped<BinRequestNotifier>();
 builder.Services.AddCommandHandlers();

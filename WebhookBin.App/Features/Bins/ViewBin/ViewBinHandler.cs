@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using WebhookBin.App.Shared.BinRequests.Dtos;
 using WebhookBin.App.Shared.Bins.Dtos;
 using WebhookBin.App.Shared.Queries;
 using WebhookBin.Domain.Bins;
@@ -16,7 +17,13 @@ public class ViewBinHandler(ApplicationDbContext dbContext) : IQueryHandler<View
             .Where(b => b.PublicId == query.PublicId)
             .Select(b => new BinDetailsDto(b.PublicId.Value,
                 b.Name,
-                b.Requests.Select(br => new ListBinRequestDto(br.Source.Raw, br.Method, br.ReceivedAt))
+                b.Requests.Select(br => new ListBinRequestDto(
+                        Method: br.Method,
+                        ReceivedAt: br.ReceivedAt,
+                        QueryString: br.QueryString,
+                        Source: new BinRequestSourceDto(br.Source.RemoteIp, br.Source.UserAgent, br.Source.Raw),
+                        Payload: new BinRequestPayloadDto(br.Payload.ContentType, br.Payload.ContentLength, br.Payload.Body)
+                        ))
                     .ToList()
             ))
             .FirstOrDefaultAsync(ct);

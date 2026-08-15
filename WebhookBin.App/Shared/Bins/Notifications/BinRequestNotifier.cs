@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
+using WebhookBin.App.Shared.BinRequests.Dtos;
 using WebhookBin.Domain.Bins;
 
 namespace WebhookBin.App.Shared.Bins.Notifications;
@@ -9,13 +10,13 @@ namespace WebhookBin.App.Shared.Bins.Notifications;
 /// <param name="hubContext"></param>
 public class BinRequestNotifier(IHubContext<BinsHub> hubContext, ILogger<BinRequestNotifier> logger)
 {
-    public async Task NotifyReceivedRequest(Guid binPublicId, CancellationToken ct = default)
+    public async Task NotifyReceivedRequest(Guid binPublicId, ListBinRequestDto binRequestDto, CancellationToken ct = default)
     {
         var group = BinsHub.HubGroup(binPublicId);
         
         logger.LogInformation("Notifying new request to group {binHubGroup}", group);
         
         await hubContext.Clients.Group(group)
-            .SendAsync(BinsHub.RequestReceived, binPublicId, cancellationToken: ct);
+            .SendAsync(BinsHub.RequestReceived, binRequestDto, cancellationToken: ct);
     }
 }
