@@ -1,11 +1,13 @@
 @page "/bins/{Id:guid}"
 @attribute [StreamRendering]
 
+@using System.Text.Json.Serialization
 @using Microsoft.AspNetCore.SignalR.Client
 @using WebhookBin.App.Shared.BinRequests.Dtos
 @using WebhookBin.App.Shared.Bins.Dtos
 @using WebhookBin.App.Shared.Bins.Notifications
 @using WebhookBin.Domain.Bins
+@using System.Text.Json
 
 @inject ViewBinHandler Handler
 @inject NavigationManager Navigation
@@ -17,7 +19,7 @@
 
 
 @if (_binDetails is not null) {
-    <div class="mb-5">
+    <div class="mb-8">
         <div class="flex items-center gap-3 mb-2">
             <BbTypographyH1>
                 @_binDetails.Name
@@ -28,8 +30,8 @@
         </div>
         <BbTypographyMuted>@_binDetails.PublicId.ToString()</BbTypographyMuted>
     </div>
-    
-    @foreach (var br in _binDetails.Requests)
+
+    @foreach (var br in _binDetails.Requests.OrderByDescending(b => b.ReceivedAt))
     {
         <BbCard class="mb-5">
             <BbCardHeader>
@@ -37,25 +39,78 @@
                 <BbCardDescription>@br.ReceivedAt.ToString("G")</BbCardDescription>
             </BbCardHeader>
             <BbCardContent>
-                <div>
-                    <BbItem Size="ItemSize.Sm">
-                        <BbItemContent>
-                            <BbItemTitle><span class="fw-bold">Content Type:</span> @br.Payload.ContentType</BbItemTitle>
-                            <BbItemDescription><span class="fw-bold">Content Length:</span> @br.Payload.ContentLength</BbItemDescription>
-                        </BbItemContent>
-                    </BbItem>
-                    <BbTypographyLarge>Body</BbTypographyLarge>
-                    <div style="white-space: pre-wrap">
-                        @br.Payload.Body
-                    </div>
-                </div>
-                <BbSeparator />
+                @if (!string.IsNullOrWhiteSpace(br.QueryString))
+                {
+                    <section>
+                        <BbTypographyH4>Query</BbTypographyH4>
+                        <BbTypographyP>@br.QueryString</BbTypographyP>
+                    </section>
+                    <BbSeparator/>
+                }
+                <section>
+                    <BbTypographyH4>Body</BbTypographyH4>
+                    @if (!br.Payload.IsEmpty)
+                    {
+                        <section class="ml-2">
+                            <div class="mb-2">
+                                <BbTypographyLarge>Content Type</BbTypographyLarge>
+                                <span>
+                                    @br.Payload.ContentType
+                                </span>
+                            </div>
+                            <div class="mb-2">
+                                <BbTypographyLarge>Content Length</BbTypographyLarge>
+                                <span>
+                                    @br.Payload.ContentLength
+                                </span>
+                            </div>
+                            <div>
+                                <BbTypographyLarge>Data</BbTypographyLarge>
+                                <span style="white-space: pre-wrap">
+                                    @RenderRequestBody(br.Payload)
+                                </span>
+                            </div>
+                        </section>
+                    }
+                    else
+                    {
+                        <BbTypographyP><i>No body provided.</i></BbTypographyP>
+                    }
+                </section>
             </BbCardContent>
         </BbCard>
     }
+
+    if (_binDetails.Requests.Count == 0)
+    {
+        <BbAlert>
+            <BbAlertTitle>No Requests found</BbAlertTitle>
+            <BbAlertDescription>
+                <BbButton Variant="ButtonVariant.Link" OnClick="MakeSampleRequest">Click here to make a sample request</BbButton>
+            </BbAlertDescription>
+        </BbAlert>
+    }
 } else
 {
-<BbSkeleton class="h-10 w-[250px]"></BbSkeleton>
+    <div class="mb-8">
+        <BbSkeleton class="h-10 w-[250px]"></BbSkeleton>
+    </div>
+    <BbCard>
+        <BbCardHeader>
+            <BbSkeleton class="h-10 w-[100px]"></BbSkeleton>
+            <BbSkeleton class="h-4 w-[250px]"></BbSkeleton>
+        </BbCardHeader>
+        <BbCardContent>
+            <div class="mb-2">
+                <BbSkeleton class="h-6 mb-1 w-[180px]"></BbSkeleton>
+                <BbSkeleton class="h-6 w-[220px]"></BbSkeleton>
+            </div>
+            <div>
+                <BbSkeleton class="h-6 mb-1 w-[180px]"></BbSkeleton>
+                <BbSkeleton class="h-6 w-[220px]"></BbSkeleton>
+            </div>
+        </BbCardContent>
+    </BbCard>
 }
 
 @code {
@@ -107,9 +162,61 @@
         Logger.LogInformation("Request received for bin {binPublicId}", _binDetails!.PublicId);
         await InvokeAsync(() =>
         {
-            _binDetails.Requests.Insert(0, binRequestDto);
+            _binDetails.Requests.Add(binRequestDto);
             StateHasChanged();
         });
+    }
+
+    /// <summary>
+    /// Renders the request body; prettifies it if it's JSON.
+    /// </summary>
+    /// <param name="payload"></param>
+    /// <returns></returns>
+    private string? RenderRequestBody(BinRequestPayloadDto payload)
+    {
+        if (payload.IsEmpty) return string.Empty;
+
+        if (payload.ContentType!.Contains("application/json"))
+        {
+            var json = JsonDocument.Parse(payload.Body!);
+            return JsonSerializer.Serialize(json, new JsonSerializerOptions { WriteIndented = true, IndentSize = 4 });
+        }
+
+        return payload.Body;
+    } 
+
+    /// <summary>
+    /// Makes a Sample Request once with pre-defined values to let the user easily test the HTTP requests viewer
+    /// </summary>
+    private async Task MakeSampleRequest()
+    {
+        Logger.LogInformation("Making new sample request");
+        
+        var httpClient = new HttpClient
+        {
+            BaseAddress = new Uri(Navigation.BaseUri)
+        };
+
+        var request = new HttpRequestMessage(HttpMethod.Post, $"i/{_binDetails?.PublicId}")
+        {
+            Content = JsonContent.Create(new
+            {
+                Id = _binDetails?.PublicId,
+                Url = BinRequestUrl,
+                Sender = "Webhook Bin",
+                Project = new
+                {
+                    GithubUrl = "https://github.com/augustofrade/webhook-bin",
+                    Techs = new List<string> { "C#", ".NET", "Blazor", "BlazorBlueprint" }
+                }
+            })
+        };
+
+        request.Headers.Referrer = new Uri(BinRequestUrl);
+        request.Headers.TryAddWithoutValidation("Origin", Navigation.BaseUri);
+        request.Headers.TryAddWithoutValidation("User-Agent", "WebhookBin.SampleClient/1.0");
+
+        await httpClient.SendAsync(request);
     }
 
     public async ValueTask DisposeAsync()

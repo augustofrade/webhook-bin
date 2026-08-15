@@ -21,14 +21,15 @@ public class BinRequestEntityConfiguration : IEntityTypeConfiguration<BinRequest
 
         builder.OwnsOne(b => b.Source, o =>
         {
-            o.Property(b => b.Scheme).IsRequired();
+            o.Property(b => b.Scheme).IsRequired(false);
             o.Property(b => b.RemoteIp)
                 .HasMaxLength(45)
-                .IsRequired();
+                .IsRequired(false);
             o.Property(b => b.Host)
                 .HasMaxLength(200)
-                .IsRequired();
+                .IsRequired(false);
             o.Property(b => b.Raw)
+                .IsRequired(false)
                 .HasMaxLength(2048);
             
             o.Property(b => b.UserAgent)
